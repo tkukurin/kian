@@ -273,12 +273,15 @@ addHook("unloadProfile", stopMplayer)
 # PyAudio recording
 ##########################################################################
 
-import pyaudio
-import wave
-
-PYAU_FORMAT = pyaudio.paInt16
-PYAU_CHANNELS = 1
-PYAU_INPUT_INDEX = None
+try:
+  import pyaudio
+  import wave
+  PYAU_FORMAT = pyaudio.paInt16
+  PYAU_CHANNELS = 1
+  PYAU_INPUT_INDEX = None
+except:
+  print('NOTE(tk): No PyAudio')
+  pass
 
 class _Recorder:
 
