@@ -2,7 +2,7 @@ import itertools as it
 
 
 def typeCheck(obj, type_defs_dict=None, **type_defs):
-  def _():
+  def yield_impl():
     for k, v in it.chain((type_defs_dict or {}).items(), type_defs.items()):
       if isinstance(v, type):
         if not isinstance(obj[k], v):
@@ -10,7 +10,7 @@ def typeCheck(obj, type_defs_dict=None, **type_defs):
         yield obj[k]
       elif isinstance(v, dict):
         yield from typeCheck(obj[k], v)
-  return tuple(_())
+  return tuple(yield_impl())
 
 
 if __name__ == '__main__':
