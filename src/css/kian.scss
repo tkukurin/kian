@@ -2,46 +2,46 @@
 @import "reviewer.scss";
 
 body {
-    font-family: "Noto Sans", "Noto Sans CJK KR", -apple-system,
-        Helvetica, Arial, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: "Noto Sans", "Noto Sans CJK KR", -apple-system,
+    Helvetica, Arial, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 html, body {
-    height: 100%;
+  height: 100%;
 }
 
 .app-main {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 
-    .app-header {
-        flex: 0;
+  .app-header {
+    flex: 0;
+    nav { padding: 0; }
+  }
+  .app-footer {
+    flex: 0;
+  }
+  .app-body {
+    position: relative;
+    overflow: auto;
+    flex: 1;
+    .pt-4.container {
+     height: 100%;
     }
-    .app-footer {
-        flex: 0;
-    }
-
-    .app-body {
-        position: relative;
-        overflow: auto;
-        flex: 1;
-        .pt-4.container {
-          height: 100%;
-        }
-    }
+  }
 }
 
 .invisible {
-    display: none;
+  display: none;
 }
 
 ul {
-    list-style-type: disc;
+  list-style-type: disc;
+  ul {
+    list-style-type: circle;
     ul {
-        list-style-type: circle;
-        ul {
-            list-style-type: square;
-        }
+      list-style-type: square;
     }
+  }
 }
