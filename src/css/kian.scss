@@ -26,6 +26,9 @@ html, body {
         position: relative;
         overflow: auto;
         flex: 1;
+        .pt-4.container {
+          height: 100%;
+        }
     }
 }
 
