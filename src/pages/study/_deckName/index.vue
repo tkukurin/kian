@@ -18,7 +18,6 @@
 div.study-main
   input(type='hidden', v-if='card', :value='card.id')
   span(v-hotkey=['ctrl+z'], @click='undoReview', title='Undo review')
-  .mt-4
   .study-header
     span Deck: {{deckName}}
     span.text-secondary.ml-3 (
