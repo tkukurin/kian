@@ -18,6 +18,7 @@ getReviewerNextEntry('DeepMind').then(n => {
   ReactDOM.render(
     <React.StrictMode>
       <MContext.Provider value={{state:n}}>
+        <a href="#" onClick={e => listDeck().then(d => console.log(d))}>Reload</a>
         <App card={state} />
       </MContext.Provider>
     </React.StrictMode>,
