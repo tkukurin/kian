@@ -134,10 +134,10 @@ interface ReviewEntryInfo {
   remaining: DeckDue
 }
 
-export function getReviewerNextEntry (deckName: string): Promise<ReviewEntryInfo | null> {
+export function getReviewerNextEntry(deckName: string): Promise<ReviewEntryInfo | null> {
   return ankiCall('reviewer_next_entry', { deckName })
 }
 
-export function reviewerShuffle () {
+export function reviewerShuffle() {
   return ankiCall('reviewer_reset')
 }
