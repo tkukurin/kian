@@ -1,7 +1,7 @@
 import './index.css';
 import 'katex/dist/katex.min.css';
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -15,6 +15,7 @@ import {setMainSocket, listDeck, getReviewerNextEntry} from './call.ts';
 
 setMainSocket(io('http://localhost:28735/'))
 listDeck().then(d => {
+  //const i = <Inp />;
   return getReviewerNextEntry(d[0]).then(n => {
     ReactDOM.render(
       <React.StrictMode>
