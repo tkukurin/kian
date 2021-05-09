@@ -1,7 +1,6 @@
 import './App.css';
-import MContext from './index.js';
-import React, {useState} from 'react';
-import {setMainSocket, listDeck, getReviewerNextEntry} from './call.ts';
+import React, {useState, useEffect} from 'react';
+import {getReviewerNextEntry} from './call.ts';
 import katex from 'katex';
 
 /**
@@ -44,9 +43,18 @@ function App({decksInit, cardInit}) {
     getReviewerNextEntry(deck).then(update);
   }
 
+  function handleShortcut(e) {
+    console.log(e);
+  }
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleShortcut);
+    return () => document.removeEventListener('keydown', handleShortcut);
+  });
+
   return (
-    <div className="App">
-      <ul>{decks.map(d => <li><a href='#' onClick={clickDeck}>{d}</a></li>)}</ul>
+    <div tabIndex="0" className="App">
+      <ul>{decks.map(d => <li key={d}><a href='#' onClick={clickDeck}>{d}</a></li>)}</ul>
       <p>Deck: {deck}</p>
       <a href="#" onClick={e => getReviewerNextEntry(deck).then(update)}>
         Reload
