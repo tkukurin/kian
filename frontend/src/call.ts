@@ -144,9 +144,9 @@ export function reviewerShuffle() {
 
 interface NoteDef {
   deck: string
-  model: string
-  fields: string[]
-  tags: string[]
+  model: string       // I think Basic or Cloze (case-sensitive!)
+  fields: string[]    // front and back of the card
+  tags: string[]      // normal list[str]
 }
 
 export interface Card {

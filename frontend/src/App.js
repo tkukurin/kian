@@ -1,6 +1,6 @@
 import './App.css';
 import React, {useState, useEffect, useCallback} from 'react';
-import {getReviewerNextEntry} from './call.ts';
+import {getReviewerNextEntry, addNote} from './call.ts';
 import katex from 'katex';
 
 
@@ -28,16 +28,17 @@ function processHtml(htmlString) {
 
 function App({inputComponent, decksInit, cardInit}) {
   const defaultCard = {front: 'Done', back: 'No more cards to review.'};
+
   const [decks, setDecks] = useState(decksInit);
   const [allDecks, _] = useState(decksInit);
   const [selIdx, setSelected] = useState(0);
-  const [isActive, setActive] = useState(false);
+  const [showBack, setShowBack] = useState(false);
   const [card, setCard] = useState(cardInit || defaultCard);
   const [inputState, setInputState] = useState('');
 
   function update(card) {
     setCard(card || defaultCard);
-    setActive(false);
+    setShowBack(false);
   }
 
   function clickDeck(e, index) {
@@ -60,7 +61,7 @@ function App({inputComponent, decksInit, cardInit}) {
 
     const deck = decks[selIdx];
     if (e.key === 'a' && e.altKey) {
-      setActive(true);
+      setShowBack(true);
     } else if (e.key === 'n' && e.altKey) {
       getReviewerNextEntry(deck).then(update);
     } else if (e.key === 'j' && e.altKey) {
@@ -72,34 +73,53 @@ function App({inputComponent, decksInit, cardInit}) {
     }
   }
 
-  function handleChange(event) {
-    function parse(str) {
-      let parts = str.trim().split(/[ ]+/);
-      return parts;
-    }
+  function cmdInputParse(str) {
+    let parts = str.trim().split(/[ ]+/);
+    return parts;
+  }
 
+  function handleChange(event) {
     console.log('Logging args', event);
     setInputState(event.target.value);
 
     const val = event.target.value.toLowerCase();
+    const prevSelectedDeck = decks[selIdx];
 
     // TODO(tk) implement some kind of command usage
-    // const parts = parse(val);
-    // console.log(parts);
-    // const cmd = ...
+    const parts = cmdInputParse(val);
+    console.log(parts);
+    if (parts.length > 1) {
+      const cmd = parts[0];
+      if (cmd == 's' || cmd == 'search') {
+        const query = parts[1].toLowerCase();
+        const newDecks = allDecks.filter(d => d.toLowerCase().includes(query));
+        setDecks(newDecks);
 
-    const prevSelectedDeck = decks[selIdx];
-    const newDecks = allDecks.filter(d => d.toLowerCase().includes(val));
-    setDecks(newDecks);
+        // TODO(tk) this shouldn't be with the dict of new decks.
+        // TODO(tk) also use smarter selection than 0
+        // TODO(tk) also make nicer
+        const newIdx = newDecks.indexOf(prevSelectedDeck);
+        if (newIdx == -1) {
+          clickDeck({decks:newDecks}, 0);
+        } else {
+          setSelected(newIdx);
+        }
+      }
+    }
+  }
 
-    // TODO(tk) this shouldn't be with the dict of new decks.
-    // TODO(tk) also use smarter selection than 0
-    // TODO(tk) also make nicer
-    const newIdx = newDecks.indexOf(prevSelectedDeck);
-    if (newIdx == -1) {
-      clickDeck({decks:newDecks}, 0);
-    } else {
-      setSelected(newIdx);
+  function handleInputKeyDown(e) {
+    const selectedDeck = decks[selIdx];
+    const parts = cmdInputParse(e.target.value);
+    const cmd = parts[0];
+    if (parts.length > 1 && cmd == 'add' && e.key == 'Enter') {
+      console.log('Adding note to %s', selectedDeck);
+      return addNote({
+        deck: selectedDeck,
+        model: 'Basic',
+        fields: ['This is the first line.', 'This is the 2nd line.'],
+        tags: ['test'],
+      });
     }
   }
 
@@ -111,21 +131,23 @@ function App({inputComponent, decksInit, cardInit}) {
 
   return (
     <div className="App">
-      <input autoFocus value={inputState} onChange={handleChange} />
+      <input autoFocus value={inputState}
+          onChange={handleChange}
+          onKeyDown={handleInputKeyDown} />
       <ul>{decks.map((d, i) =>
         <li key={d}>
           <a href='#' className={i == selIdx ? 'selected' : ''}
             onClick={e => clickDeck(e, i)}>{d}</a>
         </li>)
       }</ul>
-      <a href="#" onClick={e => getReviewerNextEntry(selIdx).then(update)}>
+      <a href="#" onClick={e => getReviewerNextEntry(decks[selIdx]).then(update)}>
         Reload
       </a>
       <div>
         <a dangerouslySetInnerHTML={{__html:processHtml(card.front)}} href="#"
-          className={isActive ? "hidden" : ""}
-          onClick={evt => setActive(true)} />
-        <div className={isActive ? "" : "hidden"}
+          className={showBack ? "hidden" : ""}
+          onClick={evt => setShowBack(true)} />
+        <div className={showBack ? "" : "hidden"}
           dangerouslySetInnerHTML={{__html:processHtml(card.back)}} />
       </div>
     </div>
