@@ -4,27 +4,6 @@ import {getReviewerNextEntry} from './call.ts';
 import katex from 'katex';
 
 
-function Inp() {
-  let inputComponent = null;
-
-  function set(i) {
-    // persistent focus
-    // I guess i is null when deleting from page?
-    if (i) {
-      inputComponent = i;
-      i.addEventListener('blur', e => console.log(e) || i.focus());
-    }
-  }
-
-  function handleKey(e) {
-    console.log(e.key);
-    console.log(e.target.value);
-  }
-
-  return <input tabIndex="0" autoFocus onKeyDown={handleKey} ref={set} />;
-}
-
-
 /**
  * Fixup Katex expressions which were rendered using some other page's CSS.
  * Basically it seems Katex renders in 2 blocks:
@@ -74,18 +53,6 @@ function App({inputComponent, decksInit, cardInit}) {
   }
 
   function handleShortcut(e) {
-    function chkInput() {
-      const input = e.target;
-      if (input.localName !== 'input')
-        return null;
-      return input.value + e.key;
-    }
-
-    function parse(str) {
-      let parts = str.trim().split(/[ ]+/);
-      return parts;
-    }
-
     function move(delta) {
       const newIndex = (selIdx + delta + decks.length) % decks.length;
       clickDeck({}, newIndex);
@@ -100,40 +67,43 @@ function App({inputComponent, decksInit, cardInit}) {
       move(1);
     } else if (e.key === 'k' && e.altKey) {
       move(-1);
-    } else if (e.key === ' ') {
-      const val = chkInput();
-      if (!val) return;
-      const parts = parse(val);
-      console.log(parts);
-      let cmd = parts[0];
     } else if (e.key === 'Enter') {
       clickDeck({}, 0);
-    } else {
-      // const val = chkInput().toLowerCase();
-      // console.log(val);
-      // const newDecks = allDecks.filter(d => d.toLowerCase().includes(val));
-      // setDecks(currentState => {
-      //   console.log('CurrentState is', currentState);
-      //   return newDecks;
-      // });
     }
   }
 
   function handleChange(event) {
+    function parse(str) {
+      let parts = str.trim().split(/[ ]+/);
+      return parts;
+    }
+
     console.log('Logging args', event);
     setInputState(event.target.value);
 
     const val = event.target.value.toLowerCase();
+
+    // TODO(tk) implement some kind of command usage
+    // const parts = parse(val);
+    // console.log(parts);
+    // const cmd = ...
+
+    const prevSelectedDeck = decks[selIdx];
     const newDecks = allDecks.filter(d => d.toLowerCase().includes(val));
     setDecks(newDecks);
-      // console.log('CurrentState is', currentState);
-      // return newDecks;
-    // });
+
+    // TODO(tk) this shouldn't be with the dict of new decks.
+    // TODO(tk) also use smarter selection than 0
+    // TODO(tk) also make nicer
+    const newIdx = newDecks.indexOf(prevSelectedDeck);
+    if (newIdx == -1) {
+      clickDeck({decks:newDecks}, 0);
+    } else {
+      setSelected(newIdx);
+    }
   }
 
-  const shortcutCallback = useCallback(
-    handleShortcut,
-    [setDecks, decks, selIdx]);
+  const shortcutCallback = useCallback(handleShortcut, [decks, selIdx]);
   useEffect(() => {
     document.addEventListener('keydown', shortcutCallback);
     return () => document.removeEventListener('keydown', shortcutCallback);
@@ -141,7 +111,7 @@ function App({inputComponent, decksInit, cardInit}) {
 
   return (
     <div className="App">
-      <input value={inputState} onChange={handleChange} />
+      <input autoFocus value={inputState} onChange={handleChange} />
       <ul>{decks.map((d, i) =>
         <li key={d}>
           <a href='#' className={i == selIdx ? 'selected' : ''}
