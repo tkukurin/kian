@@ -1,5 +1,5 @@
 import './App.css';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {getReviewerNextEntry} from './call.ts';
 import katex from 'katex';
 
@@ -50,21 +50,27 @@ function processHtml(htmlString) {
 function App({inputComponent, decksInit, cardInit}) {
   const defaultCard = {front: 'Done', back: 'No more cards to review.'};
   const [decks, setDecks] = useState(decksInit);
-  const [deck, setDeck] = useState(decks[0]);
+  const [allDecks, _] = useState(decksInit);
+  const [selIdx, setSelected] = useState(0);
   const [isActive, setActive] = useState(false);
   const [card, setCard] = useState(cardInit || defaultCard);
+  const [inputState, setInputState] = useState('');
 
   function update(card) {
     setCard(card || defaultCard);
     setActive(false);
   }
 
-  function clickDeck(e) {
-    const newDeck = e.target.innerText;
-    setDeck(newDeck);
-    getReviewerNextEntry(newDeck).then(c => {
-      update(c)
-    });
+  function clickDeck(e, index) {
+    console.log(e);
+    setSelected(index);
+    const newDeck = (e.decks || decks)[index];
+    if (newDeck) {
+      return getReviewerNextEntry(newDeck).then(c => {
+        update(c)
+      });
+    }
+    return update(null);
   }
 
   function handleShortcut(e) {
@@ -72,7 +78,7 @@ function App({inputComponent, decksInit, cardInit}) {
       const input = e.target;
       if (input.localName !== 'input')
         return null;
-      return input.value;
+      return input.value + e.key;
     }
 
     function parse(str) {
@@ -80,14 +86,20 @@ function App({inputComponent, decksInit, cardInit}) {
       return parts;
     }
 
-    //console.log(e);
+    function move(delta) {
+      const newIndex = (selIdx + delta + decks.length) % decks.length;
+      clickDeck({}, newIndex);
+    }
+
+    const deck = decks[selIdx];
     if (e.key === 'a' && e.altKey) {
       setActive(true);
     } else if (e.key === 'n' && e.altKey) {
       getReviewerNextEntry(deck).then(update);
     } else if (e.key === 'j' && e.altKey) {
-
+      move(1);
     } else if (e.key === 'k' && e.altKey) {
+      move(-1);
     } else if (e.key === ' ') {
       const val = chkInput();
       if (!val) return;
@@ -95,32 +107,48 @@ function App({inputComponent, decksInit, cardInit}) {
       console.log(parts);
       let cmd = parts[0];
     } else if (e.key === 'Enter') {
-      const val = chkInput();
-      if (!val) return;
-      console.log('Would add:', val);
-      // addNote({
-      //   deck: deck,
-      //   model: 'Default',
-      //   fields: [],
-      //   tags: []
+      clickDeck({}, 0);
+    } else {
+      // const val = chkInput().toLowerCase();
+      // console.log(val);
+      // const newDecks = allDecks.filter(d => d.toLowerCase().includes(val));
+      // setDecks(currentState => {
+      //   console.log('CurrentState is', currentState);
+      //   return newDecks;
       // });
     }
   }
 
+  function handleChange(event) {
+    console.log('Logging args', event);
+    setInputState(event.target.value);
+
+    const val = event.target.value.toLowerCase();
+    const newDecks = allDecks.filter(d => d.toLowerCase().includes(val));
+    setDecks(newDecks);
+      // console.log('CurrentState is', currentState);
+      // return newDecks;
+    // });
+  }
+
+  const shortcutCallback = useCallback(
+    handleShortcut,
+    [setDecks, decks, selIdx]);
   useEffect(() => {
-    document.addEventListener('keydown', handleShortcut);
-    return () => document.removeEventListener('keydown', handleShortcut);
-  });
+    document.addEventListener('keydown', shortcutCallback);
+    return () => document.removeEventListener('keydown', shortcutCallback);
+  }, [shortcutCallback]);
 
   return (
     <div className="App">
-      <Inp />
-      <ul>{decks.map(d =>
+      <input value={inputState} onChange={handleChange} />
+      <ul>{decks.map((d, i) =>
         <li key={d}>
-          <a href='#' className={d == deck ? 'selected' : ''} onClick={clickDeck}>{d}</a>
+          <a href='#' className={i == selIdx ? 'selected' : ''}
+            onClick={e => clickDeck(e, i)}>{d}</a>
         </li>)
       }</ul>
-      <a href="#" onClick={e => getReviewerNextEntry(deck).then(update)}>
+      <a href="#" onClick={e => getReviewerNextEntry(selIdx).then(update)}>
         Reload
       </a>
       <div>
