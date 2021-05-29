@@ -8,7 +8,6 @@ import reportWebVitals from './reportWebVitals';
 import io from 'socket.io-client'
 import {setMainSocket, listDeck, getReviewerNextEntry} from './call.ts';
 
-// renders superscript as subscript ??
 // example to test Katex:
 // import katex from 'katex';
 // <div dangerouslySetInnerHTML={{__html:katex.renderToString('A=S^{-1}D_{-1}S')}} />

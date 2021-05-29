@@ -1,7 +1,7 @@
 
 let deckListCache: string[] = []
 
-export async function listDeck (): Promise<string[]> {
+export async function listDeck() : Promise<string[]> {
   if (!deckListCache.length) {
     deckListCache = await ankiCall('deck_list')
   }
@@ -140,4 +140,51 @@ export function getReviewerNextEntry(deckName: string): Promise<ReviewEntryInfo 
 
 export function reviewerShuffle() {
   return ankiCall('reviewer_reset')
+}
+
+interface NoteDef {
+  deck: string
+  model: string
+  fields: string[]
+  tags: string[]
+}
+
+export interface Card {
+  id: number
+  noteId: number
+
+  deck: string
+  model: string
+  fieldFormats: FieldFormat[]
+  fields: string[]
+  tags: string[]
+}
+
+export enum SchedType {
+  New,
+  Learn,
+  Review,
+  NotScheduled
+}
+
+export async function hasDeck(deckName: string) {
+  const deckList = await listDeck()
+  return deckList.indexOf(deckName) !== -1;
+}
+
+export async function addDeck(deckName: string) {
+  if (await hasDeck(deckName)) return false
+  await ankiCall('deck_add', { deckName });
+  return true
+}
+
+export async function addNote(noteDef: NoteDef) {
+  const { deck, model, fields, tags } = noteDef;
+  await hasDeck(deck) || await addDeck(deck);
+  return ankiCall('note_add', {
+    deck,
+    model,
+    fields,
+    tags
+  });
 }

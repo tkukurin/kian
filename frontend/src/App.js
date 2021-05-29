@@ -6,24 +6,22 @@ import katex from 'katex';
 
 function Inp() {
   let inputComponent = null;
-  // useEffect(() => {
-  //   window.addEventListener('blur', e => {
-  //     console.log(e);
-  //     console.log(inputComponent);
-  //     inputComponent && inputComponent.focus();
-  //   });
-  //   document.addEventListener(
-  //     'focus', e => console.log(e) || (inputComponent.focus && inputComponent.focus()));
-  // });
+
   function set(i) {
     // persistent focus
+    // I guess i is null when deleting from page?
     if (i) {
       inputComponent = i;
-      i.addEventListener('blur', e => i.focus());
+      i.addEventListener('blur', e => console.log(e) || i.focus());
     }
   }
-  //useEffect(() => inputComponent.focus && inputComponent.focus());
-  return <input autoFocus onKeyDown={console.log} ref={set} />;
+
+  function handleKey(e) {
+    console.log(e.key);
+    console.log(e.target.value);
+  }
+
+  return <input tabIndex="0" autoFocus onKeyDown={handleKey} ref={set} />;
 }
 
 
@@ -62,18 +60,50 @@ function App({inputComponent, decksInit, cardInit}) {
   }
 
   function clickDeck(e) {
-    getReviewerNextEntry(deck).then(c => {
+    const newDeck = e.target.innerText;
+    setDeck(newDeck);
+    getReviewerNextEntry(newDeck).then(c => {
       update(c)
-      setDeck(e.target.innerText);
     });
   }
 
   function handleShortcut(e) {
+    function chkInput() {
+      const input = e.target;
+      if (input.localName !== 'input')
+        return null;
+      return input.value;
+    }
+
+    function parse(str) {
+      let parts = str.trim().split(/[ ]+/);
+      return parts;
+    }
+
     //console.log(e);
     if (e.key === 'a' && e.altKey) {
       setActive(true);
     } else if (e.key === 'n' && e.altKey) {
       getReviewerNextEntry(deck).then(update);
+    } else if (e.key === 'j' && e.altKey) {
+
+    } else if (e.key === 'k' && e.altKey) {
+    } else if (e.key === ' ') {
+      const val = chkInput();
+      if (!val) return;
+      const parts = parse(val);
+      console.log(parts);
+      let cmd = parts[0];
+    } else if (e.key === 'Enter') {
+      const val = chkInput();
+      if (!val) return;
+      console.log('Would add:', val);
+      // addNote({
+      //   deck: deck,
+      //   model: 'Default',
+      //   fields: [],
+      //   tags: []
+      // });
     }
   }
 
@@ -85,8 +115,11 @@ function App({inputComponent, decksInit, cardInit}) {
   return (
     <div className="App">
       <Inp />
-      <ul>{decks.map(d => <li key={d}><a href='#' onClick={clickDeck}>{d}</a></li>)}</ul>
-      <p>Deck: {deck}</p>
+      <ul>{decks.map(d =>
+        <li key={d}>
+          <a href='#' className={d == deck ? 'selected' : ''} onClick={clickDeck}>{d}</a>
+        </li>)
+      }</ul>
       <a href="#" onClick={e => getReviewerNextEntry(deck).then(update)}>
         Reload
       </a>
