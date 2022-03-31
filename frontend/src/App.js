@@ -113,12 +113,15 @@ function App({inputComponent, decksInit, cardInit}) {
     const parts = cmdInputParse(e.target.value);
     const cmd = parts[0];
     if (parts.length > 1 && cmd == 'add' && e.key == 'Enter') {
-      console.log('Adding note to %s', selectedDeck);
+      console.log('Here I would add note to %s', selectedDeck);
+      return;
+      const cardFront = 'TODO front';
+      const cardBack = 'TODO back';
       return addNote({
         deck: selectedDeck,
         model: 'Basic',
-        fields: ['This is the first line.', 'This is the 2nd line.'],
-        tags: ['test'],
+        fields: [cardFront, cardBack],
+        tags: [],
       });
     }
   }
