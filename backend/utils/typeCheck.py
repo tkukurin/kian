@@ -6,7 +6,7 @@ def typeCheck(obj, type_defs_dict=None, **type_defs):
     for k, v in it.chain((type_defs_dict or {}).items(), type_defs.items()):
       if isinstance(v, type):
         if not isinstance(obj[k], v):
-          raise TypeError
+          raise TypeError()
         yield obj[k]
       elif isinstance(v, dict):
         yield from typeCheck(obj[k], v)

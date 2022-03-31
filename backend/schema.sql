@@ -1,34 +1,34 @@
--- Cards are what you review. 
+-- Cards are what you review.
 -- There can be multiple cards for each note, as determined by the Template.
 CREATE TABLE cards (
   id       integer primary key,
    -- the epoch milliseconds of when the card was created
-  nid       integer not null,--  
+  nid       integer not null,--
    -- notes.id
   did       integer not null,
    -- deck id (available in col table)
   ord       integer not null,
-   -- ordinal : identifies which of the card templates or cloze deletions it corresponds to 
+   -- ordinal : identifies which of the card templates or cloze deletions it corresponds to
    --  for card templates, valid values are from 0 to num templates - 1
    --  for cloze deletions, valid values are from 0 to max cloze index - 1 (they're 0 indexed despite the first being called `c1`)
   mod       integer not null,
    -- modificaton time as epoch seconds
   usn       integer not null,
-   -- update sequence number : used to figure out diffs when syncing. 
-   --  value of -1 indicates changes that need to be pushed to server. 
+   -- update sequence number : used to figure out diffs when syncing.
+   --  value of -1 indicates changes that need to be pushed to server.
    --  usn < server usn indicates changes that need to be pulled from server.
   type      integer not null,
    -- 0=new, 1=learning, 2=review, 3=relearning
   queue      integer not null,
    -- -3=user buried(In scheduler 2),
-   -- -2=sched buried (In scheduler 2), 
+   -- -2=sched buried (In scheduler 2),
    -- -2=buried(In scheduler 1),
    -- -1=suspended,
    -- 0=new, 1=learning, 2=review (as for type)
    -- 3=in learning, next rev in at least a day after the previous review
    -- 4=preview
   due       integer not null,
-   -- Due is used differently for different card types: 
+   -- Due is used differently for different card types:
    --  new: note id or random int
    --  due: integer day, relative to the collection's creation time
    --  learning: integer timestamp
@@ -39,7 +39,7 @@ CREATE TABLE cards (
   reps      integer not null,
    -- number of reviews
   lapses     integer not null,
-   -- the number of times the card went from a "was answered correctly" 
+   -- the number of times the card went from a "was answered correctly"
    --  to "was answered incorrectly" state
   left      integer not null,
    -- of the form a*1000+b, with:
@@ -66,14 +66,14 @@ CREATE TABLE col (
   mod       integer not null,
    -- last modified in milliseconds
   scm       integer not null,
-   -- schema mod time: time when "schema" was modified. 
+   -- schema mod time: time when "schema" was modified.
    --  If server scm is different from the client scm a full-sync is required
   ver       integer not null,
    -- version
   dty       integer not null,
    -- dirty: unused, set to 0
   usn       integer not null,
-   -- update sequence number: used for finding diffs when syncing. 
+   -- update sequence number: used for finding diffs when syncing.
    --  See usn in cards table for more details.
   ls       integer not null,
    -- "last sync time"
@@ -89,8 +89,8 @@ CREATE TABLE col (
    -- a cache of tags used in the collection (This list is displayed in the browser. Potentially at other place)
 );
 
--- Contains deleted cards, notes, and decks that need to be synced. 
--- usn should be set to -1, 
+-- Contains deleted cards, notes, and decks that need to be synced.
+-- usn should be set to -1,
 -- oid is the original id.
 -- type: 0 for a card, 1 for a note and 2 for a deck
 CREATE TABLE graves (
@@ -114,7 +114,7 @@ CREATE TABLE notes (
    -- update sequence number: for finding diffs when syncing.
    --  See the description in the cards table for more info
   tags      text not null,
-   -- space-separated string of tags. 
+   -- space-separated string of tags.
    --  includes space at the beginning and end, for LIKE "% tag %" queries
   flds      text not null,
    -- the values of the fields in this note. separated by 0x1f (31) character.
@@ -136,10 +136,10 @@ CREATE TABLE revlog (
   cid       integer not null,
     -- cards.id
   usn       integer not null,
-    -- update sequence number: for finding diffs when syncing. 
+    -- update sequence number: for finding diffs when syncing.
     --  See the description in the cards table for more info
   ease      integer not null,
-    -- which button you pushed to score your recall. 
+    -- which button you pushed to score your recall.
     -- review: 1(wrong), 2(hard), 3(ok), 4(easy)
     -- learn/relearn:  1(wrong), 2(ok), 3(easy)
   ivl       integer not null,
