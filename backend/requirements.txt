@@ -1,6 +1,5 @@
 cython
 bs4
-send2trash
 pyaudio
 requests
 decorator
