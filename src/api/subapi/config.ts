@@ -1,5 +1,5 @@
 import ankiCall from '../ankiCall'
 
-export function getAnkiConfig () {
+export function getAnkiConfig() {
   return ankiCall('config_get')
 }

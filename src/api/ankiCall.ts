@@ -32,13 +32,13 @@ let lastSyncKey = 0
 /**
  * Create unique message key
  */
-function createMessageKey () {
+function createMessageKey() {
   return `syncKey_${syncKeyHeader}_${lastSyncKey++}`
 }
 
 const callbackPromiseTable = new Map()
 
-export default function ankiCall (apiType: string, data?: any) {
+export default function ankiCall(apiType: string, data?: any) {
   if (!mainSocket) {
     throw new Error('Socket not yet initialized')
   }
@@ -67,6 +67,7 @@ function Messagehandler (response: IResponse) {
   const { resolve, reject } = callback
   callbackPromiseTable.delete(syncKey)
 
-  if (response.error) return reject(new Error(response.error.toString()))
-  return resolve(response.result)
+  return response.error
+    ? reject(new Error(response.error.toString()))
+    : resolve(response.result)
 }

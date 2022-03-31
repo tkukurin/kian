@@ -6,7 +6,10 @@ interface ToolbarEntry {
 
 const toolbarList: ToolbarEntry[] = []
 
-export function MainToolbarAdd (routerTo: string, toolbarTitle: string, toolbarIcon: string) {
+export function MainToolbarAdd (
+    routerTo: string,
+    toolbarTitle: string,
+    toolbarIcon: string) {
   toolbarList.push({
     to: routerTo,
     icon: toolbarIcon,
