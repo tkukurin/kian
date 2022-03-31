@@ -18,9 +18,9 @@ def getNidSet(col, cids):
 
 @registerApi
 def cardGet(msg):
-    typeCheck(msg, {
-        'cardId': int,
-    })
+    # typeCheck(msg, {
+    #     'cardId': int,
+    # })
     with Col() as col:
         cardId = msg['cardId']
         card = col.getCard(cardId)

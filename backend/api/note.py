@@ -15,9 +15,7 @@ from .autocomplete import updateWordset
 
 @registerApi
 def noteGet(msg):
-    typeCheck(msg, {
-        'noteId': int,
-    })
+    typeCheck(msg, { 'noteId': int, })
     with Col() as col:
         noteId = msg['noteId']
         note = col.getNote(noteId)

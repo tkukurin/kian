@@ -13,9 +13,7 @@ import time
 
 @registerApi
 def browserQuery(msg):
-    typeCheck(msg, {
-        'query': str,
-    })
+    typeCheck(msg, {'query': str,})
     query = msg['query']
     with Col() as col:
         sortBy = msg.get('sortBy', 'createdAt')

@@ -23,14 +23,13 @@ wsdict = {}
 
 def updateWordset(col):
   """ Initialize wordSet from preexisting collections """
-  return  # NOTE(tk) some bug because can't find ngramExtract
+  return  # NOTE(tk) some bug because can't find ngramExtract. Don't use anyway.
   global wordSet, wsdict, alphaNumeric
   wordSet = set()
 
   startTime = time.time()
   for (fld,) in col.db.execute("select flds from notes order by id desc"):
     try:
-      print('FLD', wsdict[fld])
       wordSet.update(wsdict[fld])
     except KeyError:
       fld = re.sub(r'< *script.*?>(.|\n)*?< */ *script *>', '', fld)

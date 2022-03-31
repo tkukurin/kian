@@ -25,12 +25,8 @@ def reviewerNextEntry(msg):
 
     global prevDeckName
 
-    typeCheck(msg, {
-        'deckName': str,
-    })
-
+    deckName = typeCheck(msg, deckName=str)
     with Col() as col:
-        deckName = msg['deckName']
         deck = col.decks.byName(deckName)
         col.decks.select(deck['id'])
 
